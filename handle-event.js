@@ -2,7 +2,7 @@ import sendToFb from './send-to-fb.js'
 import sendToGa from './send-to-ga.js'
 import sendToGads from './send-to-gads.js'
 
-function getUtms(input) {
+function extractUtms(input) {
     const output = {
         utm_source: null,
         utm_medium: null,
@@ -35,7 +35,7 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
 
     const timestamp = Math.floor(Date.now() / 1000)
 
-    const eventUtms = getUtms(eventUrl)
+    const eventUtms = extractUtms(eventUrl)
 
     const tasks = []
 
