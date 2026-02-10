@@ -30,7 +30,7 @@ function extractUtms(input) {
     return output
 }
 
-export default async function (fbEventName, gaEventName, gadsConversionLabel, eventId, eventUrl, userId, cookieFbp, cookieFbc, cookieGclid, referrer, clientIp, userAgent, env) {
+export default async function (fbEventName, gaEventName, gadsConversionLabel, eventId, eventUrl, userId, cookieFbp, cookieFbc, cookieGclid, clientIp, userAgent, env) {
     console.log({ fbEventName, gaEventName, gadsConversionLabel })
 
     const timestamp = Math.floor(Date.now() / 1000)
@@ -47,7 +47,7 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
                     event_id: eventId,
                     event_time: timestamp,
                     action_source: 'website',
-                    event_source_url: referrer,
+                    event_source_url: eventUrl,
                     user_data: {
                         fbp: cookieFbp,
                         fbc: cookieFbc,
@@ -55,7 +55,7 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
                         client_ip_address: clientIp
                     },
                     custom_data: {
-                        page_referrer: referrer,
+                        page_referrer: eventUrl,
                         ...eventUtms
                     },
                 }]
@@ -73,8 +73,8 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
                 {
                     name: gaEventName,
                     params: {
-                        page_location: referrer,
-                        page_referrer: referrer,
+                        page_location: eventUrl,
+                        page_referrer: eventUrl,
                         event_id: eventId,
                         engagement_time_msec: 1,
                         ...eventUtms
