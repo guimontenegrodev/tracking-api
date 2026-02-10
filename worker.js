@@ -39,7 +39,7 @@ export default {
 
     body = toCamelDeep(body)
 
-    const { fbEventName, gaEventName, gadsConversionLabel, eventId, userId, cookieFbp, cookieFbc, cookieGclid } = body || {}
+    const { fbEventName, gaEventName, gadsConversionLabel, eventId, eventUrl, userId, cookieFbp, cookieFbc, cookieGclid } = body || {}
 
     if (!eventId) return new Response('Event ID is missing', { status: 400, headers: corsHeaders })
 
@@ -49,8 +49,6 @@ export default {
 
     const headers = Object.fromEntries(request.headers.entries())
 
-    const referrer = headers['referer'] || null
-
     const clientIp = headers['cf-connecting-ip'] ||
       headers['x-forwarded-for']?.split(',')[0].trim() ||
       null
@@ -59,7 +57,7 @@ export default {
 
     if (!referrer) return new Response('Referer header is missing', { status: 400, headers: corsHeaders })
 
-    ctx.waitUntil(handleEvent(fbEventName, gaEventName, gadsConversionLabel, eventId, userId, cookieFbp, cookieFbc, cookieGclid, referrer, clientIp, userAgent, env))
+    ctx.waitUntil(handleEvent(fbEventName, gaEventName, gadsConversionLabel, eventId, eventUrl, userId, cookieFbp, cookieFbc, cookieGclid, clientIp, userAgent, env))
 
     return new Response(`Event tracking process started`, { status: 202, headers: corsHeaders })
   }

@@ -2,46 +2,40 @@ import sendToFb from './send-to-fb.js'
 import sendToGa from './send-to-ga.js'
 import sendToGads from './send-to-gads.js'
 
-function extractQueryParams(input, queryParams) {
-    const output = {};
-
-    for (const key of queryParams) {
-        output[key] = null;
+function getUtms(input) {
+    const output = {
+        utm_source: null,
+        utm_medium: null,
+        utm_campaign: null,
+        utm_term: null,
+        utm_content: null
     }
 
-    if (!input) return output;
+    if (input) {
+        const queryIndex = input.indexOf('?')
 
-    const query = input.split("?")[1];
-    if (!query) return output;
+        if (queryIndex !== -1) {
+            const parts = input.slice(queryIndex + 1).split('&')
 
-    const parts = query.split("&");
+            for (let i = 0; i < parts.length; i++) {
+                const [key, value] = parts[i].split('=')
 
-    for (let i = 0; i < parts.length; i++) {
-        const [key, value] = parts[i].split("=");
-        if (!key || !value) continue;
-
-        if (key in output) {
-            output[key] = decodeURIComponent(value);
+                if (key in output && value) {
+                    output[key] = decodeURIComponent(value)
+                }
+            }
         }
     }
 
-    return output;
+    return output
 }
 
-export default async function (fbEventName, gaEventName, gadsConversionLabel, eventId, userId, cookieFbp, cookieFbc, cookieGclid, referrer, clientIp, userAgent, env) {
+export default async function (fbEventName, gaEventName, gadsConversionLabel, eventId, eventUrl, userId, cookieFbp, cookieFbc, cookieGclid, referrer, clientIp, userAgent, env) {
     console.log({ fbEventName, gaEventName, gadsConversionLabel })
 
     const timestamp = Math.floor(Date.now() / 1000)
 
-    const utms = [
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_content",
-        "utm_term",
-    ];
-
-    const referrerUtms = extractQueryParams(referrer, utms)
+    const eventUtms = getUtms(eventUrl)
 
     const tasks = []
 
@@ -62,7 +56,7 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
                     },
                     custom_data: {
                         page_referrer: referrer,
-                        ...referrerUtms
+                        ...eventUtms
                     },
                 }]
         }
@@ -83,7 +77,7 @@ export default async function (fbEventName, gaEventName, gadsConversionLabel, ev
                         page_referrer: referrer,
                         event_id: eventId,
                         engagement_time_msec: 1,
-                        ...referrerUtms
+                        ...eventUtms
                     }
                 }
             ]
